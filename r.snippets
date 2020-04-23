@@ -1,0 +1,117 @@
+## RWorkshop 2020 snippets
+
+## name: rws_enter_project
+## what it does: use usethis::proj_activate to enter the project
+snippet rws_enter_project 
+	usethis::proj_activate("/shared/workshop/2020/")
+
+## name: rws_install_packages
+## what it does: installs all packages you need for the workshop
+snippet rws_install_packages 
+	install.packages(c("devtools", "tidyverse", "survey", "haven", "gt"))
+	devtools::install_github("pewresearch/pewmethods", build_vignette = TRUE)
+	devtools::install_github("dgrtwo/snippr")
+
+## name: rws_load_packages
+## what it does: loads all packages you need to run the code in the 2020 workshop
+snippet rws_load_packages 
+	library(pewmethods)
+	library(tidyverse)
+	library(survey)
+	library(haven)
+	
+## name: rws_spss_read_non_factor
+## what it does: loads spss file using haven
+snippet rws_spss_read_non_factor 
+	${1:dataset_name} <- haven::read_sav(${2:"file_path_to_dataset"})
+
+## name: rws_spss_read_factor
+## what it does: loads spss file using haven
+snippet rws_spss_read_factor
+	${1:dataset_name} <- haven::read_sav(${2:"file_path_to_dataset"}) %>% haven::as_factor()
+	
+## name: rws_make_new_variable
+## what it does: provides core using mutate() to add a new variable
+snippet rws_make_new_variable
+	${1:dataset} <- ${1:dataset} %>% 
+	  mutate(${2:new_var} = <operation_to_do>)
+
+## name: rws_make_new_variable_collapse
+## what it does: provides core using mutate() + fct_collapse() to add a new variable that is a collapsed version of an existing variable
+snippet rws_make_new_variable_collapse
+	${1:dataset} <- ${1:dataset} %>% 
+	  mutate(${2:new_var} = fct_collapse(${3:var_to_collapse},
+        "New Category1" = c("Old cat1",
+                            "Old cat2"),
+        "New Category2" = c("Old cat1",
+                            "Old cat2") 
+                                )
+        )
+
+## name: rws_make_new_variable_case_when
+## what it does: provides core using mutate() + fct_case_when() to add a new variable
+snippet rws_make_new_variable_case_when
+	${1:dataset} <- ${1:dataset} %>%
+	mutate(${2:new_var} = fct_case_when(
+	<clause> ~ "New Cat1",
+	<clause> ~ "New Cat2"))
+
+## name: rws_wtd_frequency
+## what it does: provides core for weighted frequency using get_totals()
+snippet rws_wtd_frequency
+	get_totals(var = ${1:"variable_for_frequency"},
+						 df = ${2:dataset},
+						 wt = ${3:"survey_weight"})
+
+## name: rws_wtd_crosstab
+## what it does: provides core for weighted crosstab using get_totals()
+snippet rws_wtd_crosstab
+	get_totals(
+	var = ${1:"variable_for_rows"},
+	df = ${2:dataset}, 
+	wt = ${3:"survey_weight"},
+	by = ${4:"variable_for_columns"})
+
+## name: rws_left_join
+## what it does: provides core for left_join
+snippet rws_left_join
+	${1:new_dataset_to_make} <- ${2:existing_dataset} %>% 
+		left_join(${3:dataset_to_join}, by = ${4:"joining_variable"})
+
+## name: rws_gather
+## what it does: provides core for gather
+snippet rws_gather
+	${1:new_dataset_to_make} <- ${2:existing_dataset} %>% 
+		gather(
+		key = ${3:column_key}, 
+		value = ${4:column_value},
+		one_of("col1 to gather","col2 to gather"))
+
+## name: rws_spread
+## what it does: provides core for spreads
+snippet rws_spread
+	${1:new_dataset_to_make} <- ${2:existing_dataset} %>% 
+		spread(
+		key = ${3:column_to_spread}, 
+		value = ${4:column_to_spread_as_value})
+
+## name: rws_survey_design
+## what it does: provides core for creating a survey design using survey::svydesign()
+snippet rws_survey_design
+	${1:survey_design_name} <- svydesign(id=~1,weights=~${2:weight_var}, data=${3:dataset})
+
+## name: rws_survey_mean
+## what it does: provides core for creating a survey mean (note must declare design)
+snippet rws_survey_mean
+	svyby(
+	~${1:variable_for_rows},
+	by = ~${2:variable_for_column}, 
+	design=${3:survey_design_name},
+	FUN=svymean,
+	na.rm=T)
+
+## name: rws_survey_ttest
+## what it does: provides core for creating a survey ttest (note must declare design)
+snippet rws_survey_ttest
+	svyttest(~${1:dependent_var} ~${2:independent_var}, design=${3:survey_design_name})
+	
